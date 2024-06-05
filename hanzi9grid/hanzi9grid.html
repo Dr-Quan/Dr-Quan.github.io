@@ -109,7 +109,7 @@ canvas.height = 600;
 // 渲染汉字到 Canvas
 function renderChinese(character, size, callback) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
-    ctx.font = size + 'px 楷体'; // 设置字体大小
+    ctx.font = size + 'px "KaiTi", "SimSun", sans-serif'; // 设置字体大小
 
     // 获取文字的宽度
     var textWidth = ctx.measureText(character).width;
