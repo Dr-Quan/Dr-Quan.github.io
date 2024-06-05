@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字九宫格</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 200px);
+            grid-template-rows: repeat(3, 200px);
+            width: 600px;
+            height: 600px;
+            border: 1px solid #000;
+        }
+
+        .grid-item {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .image-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #000;
+        }
+
+        .image-container img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #inputBox {
+            width: 100%;
+            height: 40px;
+            font-size: 26px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>汉字九宫格</h1>
+    <div class="grid-container">
+        <!-- 九宫格 -->
+        <div class="grid-item">
+            <div class="image-container" id="image1"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image2"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image3"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image4"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image5"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image6"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image7"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image8"></div>
+        </div>
+        <div class="grid-item">
+            <div class="image-container" id="image9"></div>
+        </div>
+    </div>
+<input type="text" id="inputBox" placeholder="输入汉字">
+
+    <script>
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+canvas.width = 600;
+canvas.height = 600;
+
+// 渲染汉字到 Canvas
+function renderChinese(character, size, callback) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
+    ctx.font = size + 'px 楷体'; // 设置字体大小
+
+    // 获取文字的宽度
+    var textWidth = ctx.measureText(character).width;
+
+    // 计算居中的x和y坐标
+    var x = (canvas.width - textWidth) / 2;
+    var y = (canvas.height + size * 0.75) / 2;
+
+    ctx.fillText(character, x, y); // 绘制文字
+    callback();
+}
+
+// 将 Canvas 等分成九块
+function splitCanvas() {
+    var cellWidth = canvas.width / 3;
+    var cellHeight = canvas.height / 3;
+
+    var cells = [];
+    var index = 1;
+    for (var i = 0; i < 3; i++) {
+        for (var j = 0; j < 3; j++) {
+            var x = j * cellWidth;
+            var y = i * cellHeight;
+            cells.push({ x: x, y: y, index: index++ });
+        }
+    }
+    return cells;
+}
+
+// 将分割后的图片存储在内存中
+function cacheDividedImages(callback) {
+    var cells = splitCanvas();
+    var imageData = canvas.toDataURL("image/png");
+
+    var imagesStored = 0;
+    cells.forEach(function(cell) {
+        var img = new Image();
+        img.src = imageData;
+        var tempCanvas = document.createElement('canvas');
+        var tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = canvas.width / 3;
+        tempCanvas.height = canvas.height / 3;
+        img.onload = function() {
+            tempCtx.drawImage(img, cell.x, cell.y, canvas.width / 3, canvas.height / 3, 0, 0, canvas.width / 3, canvas.height / 3);
+            var imageData = tempCanvas.toDataURL("image/png");
+            localStorage.setItem(cell.index + ".png", imageData); // 将分割后的图片存储在localStorage中
+            imagesStored++;
+            if (imagesStored === cells.length) {
+                callback(); // 所有图片存储完成后执行回调函数
+            }
+        };
+    });
+}
+
+// 将图片显示在九宫格的图片容器中
+function showImagesInGrid() {
+    var gridItems = document.querySelectorAll('.image-container');
+    gridItems.forEach(function(item, index) {
+        var img = new Image();
+        img.src = localStorage.getItem(index + 1 + ".png");
+        item.appendChild(img);
+    });
+}
+<!--打乱代码的开始-->
+    // 随机化数组元素
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+
+    // 修改 showImagesInGrid 函数
+    function showImagesInGrid() {
+        var gridItems = document.querySelectorAll('.image-container');
+        
+        // 创建一个包含所有图片数据URL的数组
+        var imagesDataUrls = [];
+        for (let i = 1; i <= 9; i++) {
+            imagesDataUrls.push(localStorage.getItem(i + ".png"));
+        }
+        
+        // 随机化图片数组
+        var shuffledImagesDataUrls = shuffleArray(imagesDataUrls);
+
+        gridItems.forEach(function(item, index) {
+            var img = new Image();
+            img.src = shuffledImagesDataUrls[index];
+            item.appendChild(img);
+        });
+    }
+<!--打乱代码的结束-->
+// 生成随机汉字
+function getRandomChineseCharacter() {
+    // 定义两个Unicode区间
+    let range1 = {min: 0x3400, max: 0x4DB5}; // 扩展A区
+    let range2 = {min: 0x4E00, max: 0x9FA5}; // 基本区
+    
+    // 随机选择一个区间
+    let selectedRange = Math.random() < 0.5 ? range1 : range2;
+
+    // 在所选区间内生成随机的Unicode码点
+    let randomCodePoint = Math.floor(Math.random() * (selectedRange.max - selectedRange.min + 1)) + selectedRange.min;
+    
+    // 将Unicode码点转换成字符并返回
+    return String.fromCodePoint(randomCodePoint);
+}
+
+// 更新字符和图片
+function updateCharacterAndImages(newCharacter) {
+    currentCharacter = newCharacter;
+    renderChinese(currentCharacter, 600, function() {
+        cacheDividedImages(function() {
+            showImagesInGrid();
+        });
+    });
+}
+
+// 清除旧的汉字信息
+function clearOldCharacterInfo() {
+    var gridItems = document.querySelectorAll('.image-container');
+    gridItems.forEach(function(item) {
+        item.innerHTML = '';
+    });
+    localStorage.clear();
+}
+
+// 初始化
+let currentCharacter = getRandomChineseCharacter();
+updateCharacterAndImages(currentCharacter);
+
+function handleUserInput() {
+    const inputBox = document.getElementById('inputBox');
+    const userInput = inputBox.value.trim();
+
+    // 使用 match 方法检查输入是否为一个汉字
+    const isChineseChar = userInput.match(/[\u3400-\u4DB5\u4e00-\u9fa5]/);
+
+    if (isChineseChar) {
+        const currentChar = currentCharacter; // 当前汉字字符
+
+        if (userInput === currentChar) {
+            // 用户输入正确，生成新的随机汉字并更新状态
+            currentCharacter = getRandomChineseCharacter();
+            clearOldCharacterInfo();
+            updateCharacterAndImages(currentCharacter);
+            inputBox.value = ''; // 清空输入框
+        };
+    }
+}
+
+// 监听输入框的输入事件
+document.getElementById("inputBox").addEventListener("input", handleUserInput);
+</script>
+</body>
+</html>
