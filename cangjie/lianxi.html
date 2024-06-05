@@ -9,19 +9,24 @@
     <link rel="preload" href="extra.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <style>
         @font-face {
+            font-family: 'NotoSans';
+            src: url('NotoSans.woff') format('woff');
+		}
+        @font-face {
             font-family: 'PlanMi';
-            src: url('PlanMi.ttf') format('truetype');
+            src: url('PlanMi.woff') format('woff');
         }
 	@font-face {
 	     font-family: 'Extra';
-	     src: url('extra.ttf') format('truetype');
+	     src: url('extra.woff') format('woff');
 }
         #characterDisplay {
-            font-family:'PingFang SC', 'Droid Sans Fallback', 'Microsoft YaHei', 'PlanMi', 'Extra', sans-serif;
+            font-family:'NotoSans', 'PlanMi', 'Extra';
             font-size: 190px;
             text-align: center;
             width: 200px;
             height: 200px;
+	    padding-bottom: 10px;
         }
 		
 		p {
