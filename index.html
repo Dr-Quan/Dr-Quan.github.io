@@ -15,9 +15,9 @@
 
     .container {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
+      justify-content: space-between;
+      width: calc(100% - 20vw);
+      padding: 0 10vw;
     }
 
     .box {
@@ -33,9 +33,6 @@
       font-weight: bold;
     }
 
-    .box:first-child {
-      margin-right: 10vw;
-    }
   </style>
 </head>
 <body>
@@ -45,6 +42,9 @@
     </a>
     <a href="unicode.html" target="_blank" class="box">
       <span>UnicodeCJK全部汉字</span>
+	</a>  
+	<a href="hanzi9grid/hanzi9grid.html" target="_blank" class="box">
+    <span>汉字九宫格</span>
     </a>
   </div>
 </body>
