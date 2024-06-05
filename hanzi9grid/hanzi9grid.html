@@ -4,69 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>汉字九宫格</title>
+	<link rel="preload" href="simkai.woff" as="font" type="font/woff" crossorigin="anonymous">
     <style>
-        body, html {
-            margin-top: 50px ;
-            margin-bottom: 20px ;
-            padding-bottom: 50px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
+	        @font-face {
+            font-family: 'KaiTi';
+            src: url('simkai.woff') format('woff');
         }
-
-        h1 {
-            font-size: 36px;
-            text-align: center;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(3, 200px);
-            grid-template-rows: repeat(3, 200px);
-            width: 600px;
-            height: 600px;
-            border: 1px solid #000;
-        }
-
-        .grid-item {
-            position: relative;
-            width: 200px;
-            height: 200px;
-        }
-
-        .image-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 1px solid #000;
-        }
-
-        .image-container img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        #inputBox {
-            width: 100%;
-            height: 40px;
-            font-size: 26px;
-            padding: 0 10px;
-            box-sizing: border-box;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            outline: none;
-        }
+			body, html {
+				min-height: 0vh;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				background-color: #f4f4f4;
+				font-family: Arial, sans-serif;
+			}
+			
+			h1 {
+				font-size: 36px;
+				text-align: center;
+				margin-top: 10px;
+				margin-bottom: 10px;
+			}
+			
+			.grid-container {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				grid-template-rows: repeat(3, 1fr);
+				width: 80vw;
+				height: 80vw;
+				max-width: 600px;
+				max-height: 600px;
+				border: 1px solid #000;
+			}
+			
+			.grid-item {
+				position: relative;
+				width: 100%;
+				height: 100%;
+			}
+			
+			.image-container {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				border: 1px solid #000;
+			}
+			
+			.image-container img {
+				display: block;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+			
+			#inputBox {
+				width: 100%;
+				height: 40px;
+				font-size: 26px;
+				padding: 0 10px;
+				box-sizing: border-box;
+				margin-top: 20px;
+				border: 1px solid #ccc;
+				outline: none;
+			}
     </style>
 </head>
-<body> 
+<body>
+
     <h1>汉字九宫格</h1>
     <div class="grid-container">
         <!-- 九宫格 -->
@@ -109,7 +114,7 @@ canvas.height = 600;
 // 渲染汉字到 Canvas
 function renderChinese(character, size, callback) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
-    ctx.font = size + 'px "KaiTi", "SimSun", sans-serif'; // 设置字体大小
+    ctx.font = size + 'px KaiTi'; // 设置字体大小
 
     // 获取文字的宽度
     var textWidth = ctx.measureText(character).width;
