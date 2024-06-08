@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仓颉通规8105练习</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <style>
+    @font-face {
+      font-family: 'NotoSans';
+      src: url('NotoSans.woff') format('woff');
+    }
+
+  </style>
+  <link rel="preload" href="NotoSans.woff" as="font" type="font/woff" crossorigin="anonymous">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="input-group input-group-md">
+          <canvas id="characterCanvas" width="250" height="250" style="border: 2px solid black;"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="toggleMapping" onchange="toggleMapping()" checked>
+            编码提示:&nbsp;<span id="mappingKey"></span>
+          </label>
+        </div>
+        <div class="form-group">
+          <input type="checkbox" id="showKeyCheckbox" onchange="showKeyCheckbox()">
+          显示键名:&nbsp;<span id="showKey"></span>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">练习内容:</span>
+          <select class="form-control" id="practiceClass">
+            <option value="F500">前五百</option>
+            <option value="F1000">～一千</option>
+            <option value="F1500">～一千五</option>
+            <option value="F2000">～二千</option>
+            <option value="F2500">～二千五</option>
+            <option value="F3000">～三千</option>
+            <option value="F3500">～三千五</option>
+            <option value="second">二级字</option>
+            <option value="third">三级字</option>
+          </select>
+        </div>
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">字符数量:</span>
+          <input type="number" class="form-control" id="practiceCount" value="20" min="1">
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-md-2">
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">进度:</span>
+          <input type="text" class="form-control" readonly="readonly" id="progress">
+        </div>
+      </div>
+      <div class="col-md-1">
+        <div class="form-group">
+          <input type="button" id="nextButton" value="下一个" class="btn btn-primary btn-md">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">练习区:</span>
+          <input type="text" class="form-control" id="lianxi" placeholder="请在英文模式下练习" style="color: gray;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="8105map.js"></script>
+  <script>
+
+    const lianxiInput = document.getElementById('lianxi');
+    const mappingKeySpan = document.getElementById('mappingKey');
+    const canvas = document.getElementById('characterCanvas');
+    const ctx = canvas.getContext('2d');
+
+    lianxiInput.addEventListener('input', function() {
+      const lianxiValue = lianxiInput.value.replace(/\s/g, '').toUpperCase();
+      const mappingKey = mappingKeySpan.innerText.toUpperCase();
+      if (lianxiValue === mappingKey) {
+        correctCount++;
+        chooseNextCharacter();
+        updateProgress();
+        lianxiInput.value = '';
+      }
+    });
+
+    const CjName = ["日", "月", "金", "木", "水", "火", "土", "竹", "戈", "十", "大", "中", "一", "弓", "人", "心", "手", "口", "尸", "廿", "山", "女", "田", "難", "卜"];
+    let currentCharacter = "";
+    let correctCount = 0;
+    let totalCount = 0;
+    let availableCharacters = [];
+
+    function setCharacter(option) {
+      let list;
+	  
+      switch(option) {
+        case "F500":
+          list = F500;
+          break;
+        case "F1000":
+          list = F1000;
+          break;
+        case "F1500":
+          list = F1500;
+          break;
+        case "F2000":
+          list = F2000;
+          break;
+        case "F2500":
+          list = F2500;
+          break;
+        case "F3000":
+          list = F3000;
+          break;
+        case "F3500":
+          list = F3500;
+          break;
+        case "second":
+          list = second;
+          break;
+        case "third":
+          list = third;
+          break;
+        default:
+          list = F500;
+          break;
+      }
+      availableCharacters = Object.keys(list);
+      chooseNextCharacter();
+      updatePracticeCount();
+    }
+
+    function getCharacterFromKey(key) {
+      let character = '';
+      for (let i = 0; i < key.length; i++) {
+        const charCode = key[i].toUpperCase().charCodeAt(0) - 65;
+        const cjNameIndex = charCode % CjName.length;
+        const cjNameCount = Math.floor(charCode / CjName.length) + 1;
+        for (let j = 0; j < cjNameCount; j++) {
+          character += CjName[cjNameIndex];
+        }
+      }
+      return character;
+    }
+
+    function updateCharacterDisplay() {
+      const practiceClass = document.getElementById("practiceClass").value;
+      const mappingKey = (() => {
+        switch (practiceClass) {
+          case "F500":
+            return F500[currentCharacter];
+          case "F1000":
+            return F1000[currentCharacter];
+          case "F1500":
+            return F1500[currentCharacter];
+          case "F2000":
+            return F2000[currentCharacter];
+          case "F2500":
+            return F2500[currentCharacter];
+          case "F3000":
+            return F3000[currentCharacter];
+          case "F3500":
+            return F3500[currentCharacter];
+          case "second":
+            return second[currentCharacter];
+          case "third":
+            return third[currentCharacter];
+          default:
+            return "";
+        }
+      })();
+      const showKey = (practiceClass !== "Keyname") ? getCharacterFromKey(mappingKey) : currentCharacter;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '230px NotoSans';
+
+
+  ctx.fillText(currentCharacter, canvas.width / 2 - 112, canvas.height / 2 + 85);
+      document.getElementById("mappingKey").innerText = mappingKey;
+      document.getElementById("showKey").innerText = (typeof showKey === "number") ? CjName[showKey] : showKey;
+    }
+
+    function chooseNextCharacter() {
+      if (availableCharacters.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableCharacters.length);
+        currentCharacter = availableCharacters[randomIndex];
+        updateCharacterDisplay();
+        updateProgress();
+        if (correctCount === parseInt(document.getElementById("practiceCount").value, 10)) {
+          location.reload();
+        }
+      }
+    }
+
+    function updateProgress() {
+      const practiceCountElement = document.getElementById('practiceCount');
+      totalCount = parseInt(practiceCountElement.value, 10);
+      document.getElementById("progress").value = correctCount + "/" + totalCount ;
+    }
+
+    document.getElementById("toggleMapping").addEventListener("change", function() {
+      toggleMapping();
+    });
+
+    document.getElementById("practiceClass").addEventListener("change", function() {
+      correctCount = 0;
+      setCharacter(this.value);
+    });
+
+    document.getElementById("practiceCount").addEventListener("change", function() {
+      correctCount = 0;
+      let count = parseInt(this.value, 10);
+      count = Math.max(count, 20); // 限制最小值为20
+      const selectedClass = document.getElementById("practiceClass").value;
+      switch(selectedClass) {
+        case "F500": 
+          count = Math.min(count, Object.keys(F500).length);
+          break;
+        // 其他情况...
+      }
+      this.value = count;
+      totalCount = count; // 更新totalCount
+      setCharacter(selectedClass);
+    });
+
+    document.getElementById("nextButton").addEventListener("click", function() {
+      correctCount++;
+      chooseNextCharacter();
+      updateProgress();
+    });
+
+    setCharacter("F500");
+
+    function toggleMapping() {
+      var span = document.getElementById("mappingKey");
+      var checkbox = document.getElementById("toggleMapping");
+      if (checkbox.checked) {
+        span.style.display = "inline";
+      } else {
+        span.style.display = "none";
+      }
+    }
+
+    window.onload = function() {
+      updateShowKeyCheckbox();
+    };
+
+    function updateShowKeyCheckbox() {
+      var span = document.getElementById("showKey");
+      var checkbox = document.getElementById("showKeyCheckbox");
+      if (!checkbox.checked) {
+        span.style.display = "none";
+      } else {
+        span.style.display = "inline";
+      }
+    }
+
+    function showKeyCheckbox() {
+      var span = document.getElementById("showKey");
+      var checkbox = document.getElementById("showKeyCheckbox");
+      if (checkbox.checked) {
+        span.style.display = "inline";
+      } else {
+        span.style.display = "none";
+      }
+    }
+
+    function updatePracticeCount() {
+      const practiceCountElement = document.getElementById('practiceCount');
+      const selectedClass = document.getElementById("practiceClass").value;
+      let count = parseInt(practiceCountElement.value, 10);
+      switch(selectedClass) {
+        case "F500":
+          count = Math.min(count, Object.keys(F500).length);
+          break;
+        case "F1000":
+          count = Math.min(count, Object.keys(F1000).length);
+          break;
+        case "F1500":
+          count = Math.min(count, Object.keys(F1500).length);
+          break;
+        case "F2000":
+          count = Math.min(count, Object.keys(F2000).length);
+          break;
+        case "F2500":
+          count = Math.min(count, Object.keys(F2500).length);
+          break;
+        case "F3000":
+          count = Math.min(count, Object.keys(F3000).length);
+          break;
+        case "F3500":
+          count = Math.min(count, Object.keys(F3500).length);
+          break;
+        case "second":
+          count = Math.min(count, Object.keys(second).length);
+          break;
+        case "third":
+          count = Math.min(count, Object.keys(third).length);
+          break;
+        default:
+          count = Math.min(count, Object.keys(F500).length); // 默认为前五百
+      }
+      practiceCountElement.value = count;
+    }
+
+    let inputString = '';
+  </script>
+</body>
+</html>
