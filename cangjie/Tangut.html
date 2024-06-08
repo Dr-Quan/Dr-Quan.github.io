@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>西夏文练习</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <style>
+    @font-face {
+      font-family: 'Tangut';
+      src: url('Tangut.woff') format('woff');
+    }
+	#toggleMapping:checked ~ #mappingKey {
+  display: inline;
+}
+
+	#toggleMapping:not(:checked) ~ #mappingKey {
+  display: none;
+}
+  </style>
+  <link rel="preload" href="Tangut.woff" as="font" type="font/woff" crossorigin="anonymous">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="input-group input-group-md">
+          <canvas id="characterCanvas" width="250" height="250" style="border: 2px solid black;"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="toggleMapping" onchange="toggleMapping()">
+            编码提示:&nbsp;<span id="mappingKey"></span>
+          </label>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">练习内容:</span>
+          <select class="form-control" id="practiceClass">
+            <option value="Xixia">西夏文</option>
+            <option value="Bushou">西夏部首</option>
+          </select>
+        </div>
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">字符数量:</span>
+          <input type="number" class="form-control" id="practiceCount" value="20" min="1">
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-md-2">
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">进度:</span>
+          <input type="text" class="form-control" readonly="readonly" id="progress">
+        </div>
+      </div>
+      <div class="col-md-1">
+        <div class="form-group">
+          <input type="button" id="nextButton" value="下一个" class="btn btn-primary btn-md">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group input-group-md">
+          <span class="input-group-addon">练习区:</span>
+          <input type="text" class="form-control" id="lianxi" placeholder="请在英文模式下练习" style="color: gray;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="Tangut.js"></script>
+  <script>
+    const lianxiInput = document.getElementById('lianxi');
+    const mappingKeySpan = document.getElementById('mappingKey');
+    const canvas = document.getElementById('characterCanvas');
+    const ctx = canvas.getContext('2d');
+
+    lianxiInput.addEventListener('input', function() {
+      const lianxiValue = lianxiInput.value.replace(/\s/g, '').toUpperCase();
+      const mappingKey = mappingKeySpan.innerText.toUpperCase();
+      if (lianxiValue === mappingKey) {
+        correctCount++;
+        chooseNextCharacter();
+        updateProgress();
+        lianxiInput.value = '';
+      }
+    });
+
+    let currentCharacter = "";
+    let correctCount = 0;
+    let totalCount = 0;
+    let availableCharacters = [];
+
+    function setCharacter(option) {
+      let list;
+      switch(option) {
+        case "Xixia":
+          list = Xixia;
+          break;
+        case "Bushou":
+          list = Bushou;
+          break;
+        default:
+          list = Xixia;
+          break;
+      }
+      availableCharacters = Object.keys(list);
+      chooseNextCharacter();
+      updatePracticeCount();
+    }
+	function renderCanvas(character, mappingKey) {
+	const canvas = document.getElementById('characterCanvas');
+	const ctx = canvas.getContext('2d');
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.font = '230px Tangut';
+	ctx.fillText(character, canvas.width / 2 - 112, canvas.height / 2 + 85);
+	document.getElementById("mappingKey").innerText = mappingKey;
+	}
+
+	function updateCharacterDisplay() {
+	const practiceClass = document.getElementById("practiceClass").value;
+	const mappingKey = (() => {
+		switch (practiceClass) {
+		case "Xixia":
+			return Xixia[currentCharacter];
+		case "Bushou":
+			return Bushou[currentCharacter];
+		default:
+			return "";
+		}
+	})();
+	
+	// 调用renderCanvas函数
+	renderCanvas(currentCharacter, mappingKey);
+	}
+
+    function chooseNextCharacter() {
+      if (availableCharacters.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableCharacters.length);
+        currentCharacter = availableCharacters[randomIndex];
+        updateCharacterDisplay();
+        updateProgress();
+        if (correctCount === parseInt(document.getElementById("practiceCount").value, 10)) {
+          location.reload();
+        }
+      }
+    }
+
+    function updateProgress() {
+      const practiceCountElement = document.getElementById('practiceCount');
+      totalCount = parseInt(practiceCountElement.value, 10);
+      document.getElementById("progress").value = correctCount + "/" + totalCount ;
+    }
+
+    document.getElementById("toggleMapping").addEventListener("change", function() {
+      toggleMapping();
+    });
+
+    document.getElementById("practiceClass").addEventListener("change", function() {
+      correctCount = 0;
+      setCharacter(this.value);
+    });
+
+    document.getElementById("practiceCount").addEventListener("change", function() {
+      correctCount = 0;
+      let count = parseInt(this.value, 10);
+      count = Math.max(count, 20); // 限制最小值为20
+      const selectedClass = document.getElementById("practiceClass").value;
+      switch(selectedClass) {
+        case "Xixia": 
+          count = Math.min(count, Object.keys(Xixia).length);
+          break;
+        // 其他情况...
+      }
+      this.value = count;
+      totalCount = count; // 更新totalCount
+      setCharacter(selectedClass);
+    });
+
+    document.getElementById("nextButton").addEventListener("click", function() {
+      correctCount++;
+      chooseNextCharacter();
+      updateProgress();
+    });
+  setCharacter("Xixia");
+  
+   window.onload = function() {
+   document.fonts.load('230px Tangut').then(function() {
+	   renderCanvas("a", mappingKey);
+   })   
+   };
+  </script>
+</body>
+</html>
