@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字统网CJK-J索引</title>
+	<link rel="preload" href="./KageCJK-J.ttf" as="font" type="font/ttf" crossorigin>
+<style>
+  body {
+    font-family: "KageCJK-J" , 黑体, sans-serif;
+  }
+  #characterTable {
+      width: 100%;
+      border-collapse: collapse;
+  }
+  #characterTable td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 5px;
+  }
+  #tableBody {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 5px;
+  }
+  
+  .unicode-char {
+    font-size: 28px;
+    display: block;
+	color: #AD0707;
+	line-height: 1;
+  }
+  
+  .unicode-code {
+    font-size: 12px;
+    display: block;
+	line-height: 1;
+    margin-top: 5px;
+  }
+  .char-link {
+  text-decoration: none;
+  color: inherit;
+  }
+  
+  .char-link:hover {
+  text-decoration: none; /* 确保鼠标悬停时也不显示下划线 */
+  }
+
+  .hexgrid-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .hexgrid {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 2px;
+    justify-content: center;
+    max-width: 960px; /* 可以根据需要调整 */
+  }
+  
+  .hexgrid span {
+    text-align: center;
+    cursor: pointer;
+    padding: 5px 2px; /* 减小内边距 */
+    border: none;
+    transition: color 0.3s;
+    font-size: 20px; /* 设置合适的字体大小 */
+    line-height: 1; /* 确保文字垂直居中 */
+  }
+  
+  .inactivetab {
+    color: #999999;
+  }
+  
+  .selectedtab {
+    color: black;
+    font-weight: bold;
+  }
+  
+  /* 媒体查询 */
+@media (max-width: 768px) {
+  .hexgrid {
+    grid-template-columns: repeat(8, auto);
+  }
+  #tableBody {
+    grid-template-columns: repeat(8, 1fr);
+  }
+  h3 span {
+    display: block; /* 将 span 变为块级元素，强制换行 */
+  }
+  
+  h3 span:first-child {
+    margin-bottom: 5px; /* 可选：在两行之间添加一些间距 */
+  }
+  
+}
+</style>
+</head>
+<body style="margin: 0; padding: 0; display: flex; justify-content: center; align-items: flex-start; min-height: 0; background-color: #f0f0f0;">
+<div>
+<h3 style="text-align: center;"><span>CJK Unified Ideographs Extension J </span><span>中日韩统一表意文字扩展区J</span></h3>
+<div class="hexgrid">
+  <span class="inactivetab">323</span>
+  <span class="inactivetab">324</span>
+  <span class="selectedtab">325</span>
+  <span class="inactivetab">326</span>
+  <span class="inactivetab">327</span>
+  <span class="inactivetab">328</span>
+  <span class="inactivetab">329</span>
+  <span class="inactivetab">32A</span>
+  <span class="inactivetab">32B</span>
+  <span class="inactivetab">32C</span>
+  <span class="inactivetab">32D</span>
+  <span class="inactivetab">32E</span>
+  <span class="inactivetab">32F</span>
+  <span class="inactivetab">330</span>
+  <span class="inactivetab">331</span>
+  <span class="inactivetab">332</span>
+  <span class="inactivetab">333</span>
+  <span class="inactivetab">334</span>
+</div>
+<table id="characterTable">
+  <thead>
+    <tr id="headerRow"></tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+</div>
+</body>
+<script src="clj.js"></script>
+<script>
+const buttons = ['323', '324', '325', '326', '327', '328', '329', '32A', '32B', '32C', '32D', '32E', '32F', '330', '331', '332', '333', '334'];
+
+function initializeButtons() {
+  const hexgrid = document.querySelector('.hexgrid');
+  const spans = hexgrid.querySelectorAll('span');
+  
+  spans.forEach(span => {
+    const btn = span.textContent;
+    if (buttons.includes(btn)) {
+      span.onclick = () => {
+        selectTab(btn);
+        generateTable(btn);
+      };
+    }
+  });
+}
+
+function selectTab(selectedBtn) {
+  document.querySelectorAll('.hexgrid span').forEach(span => {
+    if (span.textContent === selectedBtn) {
+      span.className = 'selectedtab';
+    } else {
+      span.className = 'inactivetab';
+    }
+  });
+}
+
+function generateTable(buttonNumber) {
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = '';
+
+  let startRow = 0;
+  let endRow = 15;
+
+  if (buttonNumber === '323') {
+    startRow = 11; // B in hexadecimal
+    endRow = 15;   // F in hexadecimal
+  }
+  if (buttonNumber === '334') {
+    startRow = 0; // 0 in hexadecimal
+    endRow = 7;   // 7 in hexadecimal
+  }
+
+  for (let row = startRow; row <= endRow; row++) {
+	  for (let col = 0; col < 16; col++) {
+	  const cell = document.createElement('div');
+	  const codePoint = buttonNumber + row.toString(16).toUpperCase() + col.toString(16).toUpperCase();
+	  const char = String.fromCodePoint(parseInt(codePoint, 16));
+	  const link = `https://zi.tools/zi/${characterLinks[codePoint] || ''}`;
+  
+	  cell.innerHTML = `<a href="${link}" class="char-link" target="_blank">
+						  <span class="unicode-char">${char}</span>
+						  </a>
+						  <span class="unicode-code">${codePoint}</span>`;
+	  tableBody.appendChild(cell);
+	  }
+  }
+  }
+
+function init() {
+  initializeButtons();
+  // 默认选中第一个按钮
+  const firstButton = document.querySelector('.hexgrid span');
+  if (firstButton) {
+    selectTab(firstButton.textContent);
+    generateTable(firstButton.textContent);
+  }
+}
+
+// 页面加载完成后初始化
+window.onload = init;
+</script>
+</html>
