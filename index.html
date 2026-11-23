@@ -1,0 +1,711 @@
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dr_全先森的小站</title>
+<style>
+@property --p{syntax:'<number>';inherits:false;initial-value:0}
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f4f6fb; --surface:#fff; --text:#1f2430; --muted:#7a8194;
+  --line:#e8ebf3; --shadow:0 8px 24px rgba(31,36,48,.07); --radius:20px;
+}
+body.dark{
+  --bg:#0f121c; --surface:#181d2b; --text:#eef1f8; --muted:#96a0b8;
+  --line:#272e42; --shadow:0 8px 24px rgba(0,0,0,.45);
+}
+body{
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:var(--bg); color:var(--text); min-height:100vh; padding:22px;
+  transition:background .35s,color .35s;
+}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+
+/* ---------- 顶栏 ---------- */
+.nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-size:19px;font-weight:800;letter-spacing:.5px}
+.logo em{font-style:normal;background:linear-gradient(135deg,#5b8cff,#a855f7);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.search{position:relative;margin-left:auto}
+.search input{
+  width:220px;padding:10px 14px 10px 36px;border-radius:12px;
+  border:1px solid var(--line);background:var(--surface);color:var(--text);
+  font-size:14px;outline:none;transition:.3s;
+}
+.search input:focus{width:270px;border-color:#5b8cff;box-shadow:0 0 0 4px rgba(91,140,255,.15)}
+.search .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:.45;font-size:13px}
+.theme-btn{
+  width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:17px;
+  border:1px solid var(--line);background:var(--surface);color:var(--text);
+  transition:transform .25s;
+}
+.theme-btn:hover{transform:rotate(-18deg) scale(1.08)}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative;overflow:hidden;padding:28px 32px;border-radius:26px;color:#fff;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;
+  background:linear-gradient(135deg,#5b8cff,#8b5cf6 55%,#ec4899);
+}
+.hero::after{content:"";position:absolute;right:-80px;top:-120px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,255,255,.12);pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.hero-left{min-width:0}
+.hero-clock{font-size:13px;letter-spacing:1px;opacity:.88;font-variant-numeric:tabular-nums}
+.hero .hi{font-size:14px;opacity:.9;margin-top:4px}
+.hero h1{font-size:24px;margin:6px 0 8px;cursor:pointer;line-height:1.35;transition:opacity .2s}
+.hero h1:hover{opacity:.9}
+.hero .sub-link{display:inline-block;font-size:14px;opacity:.9;color:#fff;text-decoration:none}
+.hero .sub-link:hover{text-decoration:underline}
+
+/* 头像严格居中 + 圆形遮罩 + 适当缩小 */
+.hero-avatar-wrap{
+  display:flex;align-items:center;justify-content:center;
+}
+.avatar{
+  width:78px;height:78px;border-radius:50%;object-fit:cover;display:block;
+  border:3px solid rgba(255,255,255,.85);
+  box-shadow:0 8px 22px rgba(15,18,28,.25);
+}
+
+/* 右侧天气卡片：上图标，左下城市名，右下气温 */
+.hero-right{display:flex;justify-content:flex-end}
+.weather-box{
+  width:146px;min-height:112px;padding:12px 14px;border-radius:20px;
+  background:rgba(255,255,255,.18);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.25);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.weather-top{
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;line-height:1.1;
+}
+.weather-bottom{
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  margin-top:10px;
+}
+.weather-city{
+  font-size:13px;font-weight:600;opacity:.95;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.weather-temp{
+  font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;flex:none;
+}
+
+/* ---------- 学科/工具卡片 ---------- */
+.section-title{display:flex;align-items:baseline;gap:10px;margin-bottom:-6px}
+.section-title h2{font-size:17px}
+.section-title span{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:20px 14px}
+.tool-group{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:9px;padding:12px 6px;
+  border:1px solid transparent;border-radius:20px;transition:transform .2s,background .2s}
+.tool-group:hover{transform:translateY(-4px);background:var(--surface);border-color:var(--line)}
+.group-icon{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;overflow:hidden;
+  background:linear-gradient(145deg,#7c9dff,#b07aff);box-shadow:0 8px 22px #5369a522;color:white;font-size:28px}
+.group-icon img{width:100%;height:100%;object-fit:cover}
+.tool-group strong{font-size:14px;font-weight:650}
+.drawer-mask{position:fixed;inset:0;z-index:60;background:#080b16a6;backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;transition:opacity .28s}
+.drawer-mask.show{opacity:1;pointer-events:auto}
+.drawer{position:absolute;left:50%;bottom:0;transform:translate(-50%,105%);width:min(760px,100%);
+  max-height:84vh;overflow:auto;padding:18px 22px 30px;border-radius:28px 28px 0 0;
+  background:var(--surface);transition:transform .36s cubic-bezier(.2,.8,.2,1)}
+.drawer-mask.show .drawer{transform:translate(-50%,0)}
+.drawer-handle{width:42px;height:5px;border-radius:8px;background:var(--muted);opacity:.35;margin:0 auto 18px}
+.drawer-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.drawer-top h3{font-size:19px}
+.drawer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:16px 10px}
+.tool-item{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;text-align:center;
+  color:var(--text);text-decoration:none;cursor:pointer;padding:8px 2px;border-radius:16px}
+.tool-item:hover{background:var(--bg)}
+.tool-item img,.item-fallback{width:60px;height:60px;border-radius:50%;object-fit:cover;
+  background:var(--bg);border:1px solid var(--line)}
+.item-fallback{display:grid;place-items:center;font-size:20px;color:var(--muted)}
+.tool-item span{font-size:12px;overflow-wrap:anywhere}
+
+/* ---------- 音乐播放条 ---------- */
+.player{
+  display:flex;align-items:center;gap:18px;padding:16px 22px;
+  border-radius:var(--radius);background:var(--surface);
+  border:1px solid var(--line);box-shadow:var(--shadow);
+}
+.play{
+  flex:none;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
+  font-size:17px;color:#fff;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ec4899,#f59e0b);
+  box-shadow:0 8px 20px rgba(236,72,153,.35);transition:transform .2s;
+}
+.play:hover{transform:scale(1.07)}
+.play:active{transform:scale(.93)}
+.waves{flex:1;display:flex;align-items:flex-end;gap:3px;height:34px}
+.waves i{
+  flex:1;max-width:7px;height:15%;border-radius:4px;
+  background:linear-gradient(180deg,#ec4899,#a855f7);
+  opacity:.35;animation:wave 1s ease-in-out infinite alternate;
+  animation-play-state:paused;
+}
+.player.playing .waves i{animation-play-state:running;opacity:1}
+@keyframes wave{from{height:12%}to{height:100%}}
+.song{min-width:0;max-width:280px}
+.song strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- 弹窗关闭按钮 ---------- */
+.close{
+  width:32px;height:32px;border-radius:50%;
+  border:none;cursor:pointer;font-size:18px;line-height:1;
+  background:var(--line);color:var(--text);transition:transform .2s;
+}
+.close:hover{transform:rotate(90deg)}
+
+@media(max-width:680px){
+  .hero{grid-template-columns:1fr;justify-items:center;text-align:center;padding:22px}
+  .hero-right{justify-content:center}
+  .hero h1{font-size:20px}
+  .search input{width:150px}
+  .search input:focus{width:180px}
+  .song{max-width:140px}
+}
+
+.tool-group{font:inherit;background:transparent;border:1px solid transparent}
+.tool-item{font:inherit;border:0;background:transparent}
+.group-img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body class="">
+<div class="wrap">
+  <!-- 顶栏 -->
+  <header class="nav">
+    <div class="logo">Dr_<em>全先森的小站</em></div>
+    <div class="search">
+      <span class="ico">🔍</span>
+      <input id="search" type="text" placeholder="搜索分组或工具…">
+    </div>
+    <button class="theme-btn" id="themeBtn" title="切换主题">🌙</button>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-clock" id="clockText">00:00:00</div>
+      <p class="hi" id="greetingText">下午好</p>
+      <h1 id="quoteText" title="点击切换语录">这里放本人语录</h1>
+      <a class="sub-link" href="https://space.bilibili.com/341399972" target="_blank" rel="noopener noreferrer">一个不太正经的UP主</a>
+    </div>
+
+    <div class="hero-avatar-wrap">
+      <img class="avatar" alt="头像" src="https://avatars.githubusercontent.com/u/46104701?s=400&amp;u=07e13ed81f812858b868a5f7f64b248b77291d52&amp;v=4">
+    </div>
+
+    <div class="hero-right">
+      <div class="weather-box" id="weatherBox">
+        <div class="weather-top" id="weatherIcon">⛅</div>
+        <div class="weather-bottom">
+          <span class="weather-city" id="weatherCity">定位中</span>
+          <span class="weather-temp" id="weatherTemp">--°</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 工具-->
+  <div class="section-title">
+    <h2>我的工具</h2>
+    <span>点击分类</span>
+  </div>
+  <section class="grid" id="grid"></section>
+
+  <!-- 音乐 -->
+  <div class="section-title">
+    <h2>今日推荐</h2><span>精选歌曲</span>
+  </div>
+  <section class="player" id="player">
+    <button class="play" id="playBtn" title="播放/切换">▶</button>
+    <div class="waves" id="waves"></div>
+    <div class="song">
+      <strong id="songTitle">当前歌名</strong>
+      <small id="songInfo">当前歌词</small>
+    </div>
+  </section>
+</div>
+
+<!-- 抽屉 -->
+<div class="drawer-mask" id="drawerMask">
+  <section class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="drawer-handle"></div>
+    <div class="drawer-top"><h3 id="drawerTitle">分组1</h3><button class="close" id="closeBtn" aria-label="关闭">×</button></div>
+    <div class="drawer-grid" id="drawerGrid"></div>
+  </section>
+</div>
+
+<script>
+// 语录列表（按需增减，支持动态切换）
+const yulu = [
+  '保持热爱，奔赴山海。',
+  '先完成，再完美；先出发，再规划。',
+  '生活本身比活成什么更重要。',
+  '成功路上并不拥挤，因为坚持的人不多。'
+];
+
+// 音乐与歌词列表（一一对应）
+
+const music = [
+  {
+    name: '梁心颐 - 下雨天',
+    url: 'http://music.163.com/song/media/outer/url?id=3384823504.mp3'
+  },
+  {
+    name: 'I cry - 有里知花',
+    url: 'http://music.163.com/song/media/outer/url?id=668243.mp3'
+  },
+  {
+    name: '辉星 - Insomnia (불면증)',
+    url: 'http://music.163.com/song/media/outer/url?id=2074172143.mp3'
+  },
+  {
+    name: '金莎 - 最近好吗',
+    url: 'http://music.163.com/song/media/outer/url?id=247525.mp3'
+  }
+];
+
+const lrc = [
+  '',
+  '',
+  '',
+  ''
+];
+
+
+// 弹性分组与工具配置（支持任意增删分组与组内工具，每个分组和工具均可配 icon 与 url）
+const iconRoot = './icon/';
+const toolGroups = [
+  {
+    name: '中文',
+    icon: 'cn',
+    items: [
+      { name: '仓颉', icon: 'cang', url: 'https://dr-quan.github.io/CJKtool/cangjie/lianxi.html' },
+      { name: 'CJK', icon: 'uni', url: 'https://dr-quan.github.io/CJKtool/unicode.html' },
+      { name: '九宫格', icon: '9grid', url: https://dr-quan.github.io/CJKtool/hanzi9grid/hanzi9grid.html'' }
+    ]
+  },
+  {
+    name: '数学',
+    icon: 'math',
+    items: [
+      { name: '待做', icon: 'B1', url: '' },
+      { name: '待做', icon: 'B2', url: '' },
+      { name: '待做', icon: 'B3', url: '' }
+    ]
+  },
+  {
+    name: '英语',
+    icon: 'eng',
+    items: [
+      { name: '词见', icon: 'meetin', url: 'https://dr-quan.github.io/Meetin/Meetin.html' },
+      { name: '打字', icon: 'dazi', url: '' },
+      { name: '听力', icon: 'tingli', url: '' }
+    ]
+  },
+  {
+    name: '电子',
+    icon: 'elec',
+    items: [
+      { name: '待做', icon: 'C1', url: '' },
+      { name: '待做', icon: 'C2', url: '' }
+    ]
+  },
+  {
+    name: '音乐',
+    icon: 'music',
+    items: [
+      { name: '吉他', icon: 'guitar', url: '' },
+      { name: '钢琴', icon: 'piano', url: '' }
+    ]
+  },
+  {
+    name: '地铁',
+    icon: 'subway',
+    items: [
+      { name: '大连', icon: 'Dalian_Metro', url: '' },
+      { name: '待做', icon: 'daizuo', url: '' }
+    ]
+  }
+];
+
+const $ = id => document.getElementById(id);
+
+/* ---------- 时钟与时段问候 ---------- */
+function getGreetingByHour(h){
+  if (h >= 3 && h < 5) return '凌晨好';
+  if (h >= 5 && h < 11) return '早上好';
+  if (h >= 11 && h < 13) return '中午好';
+  if (h >= 13 && h < 18) return '下午好';
+  if (h >= 18 && h < 23) return '晚上好';
+  return '夜深了';
+}
+function updateClockAndGreeting(){
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  $('clockText').textContent = `${hh}:${mm}:${ss}`;
+  $('greetingText').textContent = getGreetingByHour(now.getHours());
+}
+updateClockAndGreeting();
+setInterval(updateClockAndGreeting, 1000);
+
+/* ---------- 语录动态切换 ---------- */
+let quoteIndex = 0;
+function renderQuote(idx){
+  if (!Array.isArray(yulu) || yulu.length === 0){
+    $('quoteText').textContent = '这里放本人语录';
+    return;
+  }
+  quoteIndex = ((idx % yulu.length) + yulu.length) % yulu.length;
+  $('quoteText').textContent = yulu[quoteIndex];
+}
+renderQuote(0);
+$('quoteText').addEventListener('click', () => renderQuote(quoteIndex + 1));
+setInterval(() => {
+  if (Array.isArray(yulu) && yulu.length > 1) renderQuote(quoteIndex + 1);
+}, 6000);
+
+/* ---------- 按访问 IP 更新城市、天气图标与气温 ---------- */
+function weatherCodeToIcon(code){
+  if (code === 0) return '☀️';
+  if ([1, 2].includes(code)) return '🌤️';
+  if (code === 3) return '☁️';
+  if ([45, 48].includes(code)) return '🌫️';
+  if ([51, 53, 55, 56, 57].includes(code)) return '🌦️';
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return '🌧️';
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return '❄️';
+  if ([95, 96, 99].includes(code)) return '⛈️';
+  return '🌡️';
+}
+
+async function loadIpWeather(){
+  try {
+    const ipRes = await fetch('https://ipwho.is/', { cache: 'no-store' });
+    const ipData = await ipRes.json();
+    if (!ipData || ipData.success === false || typeof ipData.latitude !== 'number' || typeof ipData.longitude !== 'number'){
+      throw new Error('IP location unavailable');
+    }
+    const city = ipData.city || ipData.region || ipData.country || '未知城市';
+    $('weatherCity').textContent = city;
+
+    const wxUrl = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(ipData.latitude)}&longitude=${encodeURIComponent(ipData.longitude)}&current=temperature_2m,weather_code&timezone=auto`;
+    const wxRes = await fetch(wxUrl, { cache: 'no-store' });
+    const wxData = await wxRes.json();
+    const cur = wxData && wxData.current;
+    if (cur && typeof cur.temperature_2m === 'number'){
+      $('weatherTemp').textContent = `${Math.round(cur.temperature_2m)}°C`;
+      $('weatherIcon').textContent = weatherCodeToIcon(cur.weather_code);
+    } else {
+      $('weatherTemp').textContent = '--°C';
+    }
+  } catch (err) {
+    $('weatherCity').textContent = '获取失败';
+    $('weatherTemp').textContent = '--°C';
+    $('weatherIcon').textContent = '☁️';
+  }
+}
+loadIpWeather();
+
+/* ---------- 弹性工具分组与抽屉 ---------- */
+const grid = $('grid');
+
+function isImageSource(val){
+  if (!val) return false;
+  return /^(https?:\/\/|\.{0,2}\/|\/)/.test(val) || /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(val);
+}
+
+function resolveIconSrc(val, fallbackName){
+  const raw = (val || fallbackName || '').trim();
+  if (/^(https?:\/\/|\.{0,2}\/|\/)/.test(raw) || /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(raw)){
+    return raw;
+  }
+  return `${iconRoot}${raw}.png`;
+}
+
+function createIconElement(iconVal, labelText, className = ''){
+  const cleanVal = (iconVal || '').trim();
+  if (cleanVal && !isImageSource(cleanVal) && !/^[a-zA-Z0-9_-]+$/.test(cleanVal)){
+    const span = document.createElement('span');
+    span.className = className === 'group-img' ? '' : 'item-fallback';
+    span.textContent = cleanVal;
+    span.setAttribute('aria-label', labelText);
+    return span;
+  }
+
+  const img = document.createElement('img');
+  img.className = className;
+  img.alt = labelText;
+  img.src = resolveIconSrc(cleanVal, labelText);
+
+  img.onerror = () => {
+    if (!cleanVal && img.dataset.svgTried !== '1'){
+      img.dataset.svgTried = '1';
+      img.src = `${iconRoot}${labelText}.svg`;
+      return;
+    }
+    const fallback = document.createElement('span');
+    fallback.className = className === 'group-img' ? '' : 'item-fallback';
+    fallback.textContent = '✦';
+    fallback.setAttribute('aria-label', labelText);
+    img.replaceWith(fallback);
+  };
+
+  return img;
+}
+
+function renderGroups(list = toolGroups){
+  grid.innerHTML = '';
+  list.forEach((g) => {
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'tool-group';
+    el.style.color = 'var(--text)';
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'group-icon';
+    const cover = createIconElement(g.icon, g.name, 'group-img');
+    iconWrap.appendChild(cover);
+
+    const title = document.createElement('strong');
+    title.textContent = g.name;
+
+    el.append(iconWrap, title);
+    el.addEventListener('click', () => openDrawer(g));
+    grid.appendChild(el);
+  });
+}
+
+const drawerMask = $('drawerMask');
+
+function openDrawer(g){
+  $('drawerTitle').textContent = g.name;
+  const target = $('drawerGrid');
+  target.innerHTML = '';
+
+  const items = Array.isArray(g.items) ? g.items : [];
+  items.forEach((item) => {
+    const node = document.createElement(item.url ? 'a' : 'button');
+    if (item.url){
+      node.href = item.url;
+      node.target = '_blank';
+      node.rel = 'noopener noreferrer';
+    } else {
+      node.type = 'button';
+    }
+    node.className = 'tool-item';
+
+    const iconEl = createIconElement(item.icon, item.name);
+    node.appendChild(iconEl);
+
+    const label = document.createElement('span');
+    label.textContent = item.name;
+    node.appendChild(label);
+
+    if (!item.url){
+      node.addEventListener('click', () => {
+        $('songInfo').textContent = `已选择：${g.name} · ${item.name}（未配置链接）`;
+      });
+    }
+    target.appendChild(node);
+  });
+
+  drawerMask.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer(){
+  drawerMask.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+$('closeBtn').addEventListener('click', closeDrawer);
+drawerMask.addEventListener('click', (e) => {
+  if (e.target === drawerMask) closeDrawer();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDrawer();
+});
+
+renderGroups(toolGroups);
+
+$('search').placeholder = '搜索分组或工具…';
+$('search').addEventListener('input', () => {
+  const q = $('search').value.trim().toLowerCase();
+  if (!q){
+    renderGroups(toolGroups);
+    return;
+  }
+  const filtered = toolGroups.filter((g) => {
+    const itemNames = (g.items || []).map((x) => x.name).join(' ');
+    return `${g.name} ${itemNames}`.toLowerCase().includes(q);
+  });
+  renderGroups(filtered);
+});
+
+/* ---------- 主题切换 ---------- */
+const themeBtn = $('themeBtn');
+themeBtn.addEventListener('click', () => {
+  const dark = document.body.classList.toggle('dark');
+  themeBtn.textContent = dark ? '☀️' : '🌙';
+  try { localStorage.setItem('site-theme', dark ? 'dark' : 'light'); } catch(e){}
+});
+try {
+  if (localStorage.getItem('site-theme') === 'dark'){
+    document.body.classList.add('dark');
+    themeBtn.textContent = '☀️';
+  }
+} catch(e){}
+
+/* ---------- 音乐播放与 LRC 歌词同步 ---------- */
+const player = $('player'), playBtn = $('playBtn'), waves = $('waves');
+for (let i = 0; i < 32; i++){
+  const b = document.createElement('i');
+  b.style.animationDuration = (.7 + Math.random() * .8).toFixed(2) + 's';
+  b.style.animationDelay = (-Math.random()).toFixed(2) + 's';
+  waves.appendChild(b);
+}
+
+let audioEl = null;
+let currentTrackIdx = -1;
+let parsedLyrics = [];
+
+function parseLrcText(raw){
+  if (!raw) return [];
+  const lines = raw.split(/\r?\n/);
+  const result = [];
+  const timeReg = /\[(\d{2,}):(\d{2}(?:\.\d{1,3})?)\]/g;
+  for (const line of lines){
+    const matches = [...line.matchAll(timeReg)];
+    const text = line.replace(timeReg, '').trim();
+    if (!text) continue;
+    if (matches.length === 0){
+      result.push({ time: null, text });
+    } else {
+      for (const m of matches){
+        const sec = parseInt(m[1], 10) * 60 + parseFloat(m[2]);
+        result.push({ time: sec, text });
+      }
+    }
+  }
+  result.sort((a, b) => (a.time ?? -1) - (b.time ?? -1));
+  return result;
+}
+
+async function fetchLrc(url){
+  if (!url) return [];
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const txt = await res.text();
+    return parseLrcText(txt);
+  } catch (e){
+    return [];
+  }
+}
+
+function syncLyricByTime(currentTime){
+  if (!parsedLyrics.length) return;
+  const timed = parsedLyrics.filter(item => typeof item.time === 'number');
+  if (!timed.length){
+    $('songInfo').textContent = parsedLyrics[0].text;
+    return;
+  }
+  let active = timed[0];
+  for (const item of timed){
+    if (currentTime >= item.time) active = item;
+    else break;
+  }
+  $('songInfo').textContent = active.text;
+}
+
+function stopCurrentAudio(){
+  if (audioEl){
+    try { audioEl.pause(); } catch(e){}
+    audioEl.src = '';
+    audioEl = null;
+  }
+  player.classList.remove('playing');
+  playBtn.textContent = '▶';
+}
+
+async function playTrackAt(idx){
+  if (!Array.isArray(music) || music.length === 0){
+    $('songTitle').textContent = '未配置 music 列表';
+    $('songInfo').textContent = '请在脚本 music / lrc 数组中填入音频与歌词链接';
+    return;
+  }
+  currentTrackIdx = ((idx % music.length) + music.length) % music.length;
+   const track = music[currentTrackIdx] || {};
+   const src = (track.url || '').trim();
+   const lrcUrl = (Array.isArray(lrc) ? (lrc[currentTrackIdx] || '') : '').trim();
+
+  if (!src){
+    $('songTitle').textContent = `第 ${currentTrackIdx + 1} 首（空链接）`;
+    $('songInfo').textContent = '当前歌单条目为空';
+    return;
+  }
+
+  stopCurrentAudio();
+  const fallbackName = track.name ||
+    decodeURIComponent(src.split('?')[0].split('#')[0].split('/').pop() || `曲目 ${currentTrackIdx + 1}`);
+  $('songTitle').textContent = fallbackName;
+  $('songInfo').textContent = '加载中...';
+
+  parsedLyrics = await fetchLrc(lrcUrl);
+  if (parsedLyrics.length > 0){
+    $('songInfo').textContent = parsedLyrics[0].text;
+  } else {
+    $('songInfo').textContent = '暂无可用歌词';
+  }
+
+  audioEl = new Audio(src);
+  audioEl.preload = 'metadata';
+  audioEl.addEventListener('timeupdate', () => {
+    if (audioEl) syncLyricByTime(audioEl.currentTime);
+  });
+  audioEl.addEventListener('play', () => {
+    player.classList.add('playing');
+    playBtn.textContent = '❚❚';
+  });
+  audioEl.addEventListener('pause', () => {
+    player.classList.remove('playing');
+    playBtn.textContent = '▶';
+  });
+  audioEl.addEventListener('ended', () => {
+    player.classList.remove('playing');
+    playBtn.textContent = '▶';
+    if (music.length > 1) playTrackAt(currentTrackIdx + 1);
+  });
+  audioEl.addEventListener('error', () => {
+    player.classList.remove('playing');
+    playBtn.textContent = '▶';
+    $('songInfo').textContent = '音频加载失败，请检查链接或跨域设置';
+  });
+
+  try {
+    await audioEl.play();
+  } catch (e){
+    $('songInfo').textContent = parsedLyrics[0]?.text || '点击播放按钮开始播放';
+  }
+}
+
+playBtn.addEventListener('click', () => {
+  if (audioEl){
+    if (!audioEl.paused){
+      audioEl.pause();
+    } else {
+      audioEl.play().catch(()=>{});
+    }
+    return;
+  }
+  playTrackAt(currentTrackIdx >= 0 ? currentTrackIdx : 0);
+});
+</script>
+
+</body></html>
