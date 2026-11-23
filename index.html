@@ -146,9 +146,10 @@ body{
 }
 .player.playing .waves i{animation-play-state:running;opacity:1}
 @keyframes wave{from{height:12%}to{height:100%}}
-.song{min-width:0;max-width:280px}
-.song strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.song small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song{min-width:0;width:min(280px,38%);max-width:280px;margin-left:auto;text-align:right;flex:0 1 280px}
+.song strong{display:block;max-width:100%;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.song small{display:block;max-width:100%;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+@media(max-width:680px){.player{gap:10px;padding:14px 12px}.waves{min-width:0;gap:2px}.song{width:34%;max-width:140px;flex:0 1 140px}.song strong,.song small{max-width:100%}.play{width:44px;height:44px}}
 
 /* ---------- 弹窗关闭按钮 ---------- */
 .close{
@@ -225,7 +226,7 @@ body{
     <div class="waves" id="waves"></div>
     <div class="song">
       <strong id="songTitle">当前歌名</strong>
-      <small id="songInfo">当前歌词</small>
+      <small id="songInfo" aria-live="polite"></small>
     </div>
   </section>
 </div>
@@ -253,19 +254,19 @@ const yulu = [
 const music = [
   {
     name: '梁心颐 - 下雨天',
-    url: 'http://music.163.com/song/media/outer/url?id=3384823504.mp3'
+    url: 'https://music.163.com/song/media/outer/url?id=3384823504.mp3'
   },
   {
     name: 'I cry - 有里知花',
-    url: 'http://music.163.com/song/media/outer/url?id=668243.mp3'
+    url: 'https://music.163.com/song/media/outer/url?id=668243.mp3'
   },
   {
     name: '辉星 - Insomnia (불면증)',
-    url: 'http://music.163.com/song/media/outer/url?id=2074172143.mp3'
+    url: 'https://music.163.com/song/media/outer/url?id=2074172143.mp3'
   },
   {
     name: '金莎 - 最近好吗',
-    url: 'http://music.163.com/song/media/outer/url?id=247525.mp3'
+    url: 'https://music.163.com/song/media/outer/url?id=247525.mp3'
   }
 ];
 
@@ -282,16 +283,16 @@ const iconRoot = './icon/';
 const toolGroups = [
   {
     name: '中文',
-    icon: 'cn',
+    icon: 'cn.jpg',
     items: [
-      { name: '仓颉', icon: 'cang', url: 'https://dr-quan.github.io/CJKtool/cangjie/lianxi.html' },
-      { name: 'CJK', icon: 'uni', url: 'https://dr-quan.github.io/CJKtool/unicode.html' },
-      { name: '九宫格', icon: '9grid', url: 'https://dr-quan.github.io/CJKtool/hanzi9grid/hanzi9grid.html' }
+      { name: '仓颉', icon: 'cang.svg', url: 'https://dr-quan.github.io/CJKtool/cangjie/lianxi.html' },
+      { name: 'CJK', icon: 'uni.svg', url: 'https://dr-quan.github.io/CJKtool/unicode.html' },
+      { name: '九宫格', icon: '9grid.svg', url: 'https://dr-quan.github.io/CJKtool/hanzi9grid/hanzi9grid.html' }
     ]
   },
   {
     name: '数学',
-    icon: 'math',
+    icon: 'math.png',
     items: [
       { name: '待做', icon: 'B1', url: '' },
       { name: '待做', icon: 'B2', url: '' },
@@ -300,16 +301,16 @@ const toolGroups = [
   },
   {
     name: '英语',
-    icon: 'eng',
+    icon: 'eng.jpg',
     items: [
-      { name: '词见', icon: 'meetin', url: 'https://dr-quan.github.io/Meetin/Meetin.html' },
+      { name: '词见', icon: 'meetin.jpg', url: 'https://dr-quan.github.io/Meetin/Meetin.html' },
       { name: '打字', icon: 'dazi', url: '' },
       { name: '听力', icon: 'tingli', url: '' }
     ]
   },
   {
     name: '电子',
-    icon: 'elec',
+    icon: 'elec.jpg',
     items: [
       { name: '待做', icon: 'C1', url: '' },
       { name: '待做', icon: 'C2', url: '' }
@@ -317,17 +318,17 @@ const toolGroups = [
   },
   {
     name: '音乐',
-    icon: 'music',
+    icon: 'music.jpg',
     items: [
-      { name: '吉他', icon: 'guitar', url: '' },
-      { name: '钢琴', icon: 'piano', url: '' }
+      { name: '吉他', icon: 'guitar.png', url: '' },
+      { name: '钢琴', icon: 'piano.jpg', url: '' }
     ]
   },
   {
     name: '地铁',
-    icon: 'subway',
+    icon: 'Dalian_Metro.png',
     items: [
-      { name: '大连', icon: 'Dalian_Metro', url: '' },
+      { name: '大连', icon: 'Dalian_Metro.png', url: '' },
       { name: '待做', icon: 'daizuo', url: '' }
     ]
   }
@@ -384,9 +385,16 @@ function weatherCodeToIcon(code){
   return '🌡️';
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 7000){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try { return await fetch(url, { ...options, signal: controller.signal }); }
+  finally { clearTimeout(timer); }
+}
+
 async function loadIpWeather(){
   try {
-    const ipRes = await fetch('https://ipwho.is/', { cache: 'no-store' });
+    const ipRes = await fetchWithTimeout('https://ipwho.is/', { cache: 'no-store' });
     const ipData = await ipRes.json();
     if (!ipData || ipData.success === false || typeof ipData.latitude !== 'number' || typeof ipData.longitude !== 'number'){
       throw new Error('IP location unavailable');
@@ -395,7 +403,7 @@ async function loadIpWeather(){
     $('weatherCity').textContent = city;
 
     const wxUrl = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(ipData.latitude)}&longitude=${encodeURIComponent(ipData.longitude)}&current=temperature_2m,weather_code&timezone=auto`;
-    const wxRes = await fetch(wxUrl, { cache: 'no-store' });
+    const wxRes = await fetchWithTimeout(wxUrl, { cache: 'no-store' });
     const wxData = await wxRes.json();
     const cur = wxData && wxData.current;
     if (cur && typeof cur.temperature_2m === 'number'){
@@ -422,9 +430,8 @@ function isImageSource(val){
 
 function resolveIconSrc(val, fallbackName){
   const raw = (val || fallbackName || '').trim();
-  if (/^(https?:\/\/|\.{0,2}\/|\/)/.test(raw) || /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(raw)){
-    return raw;
-  }
+  if (/^(https?:\/\/|\.{0,2}\/|\/)/.test(raw) || /^[^/]+\//.test(raw)) return raw;
+  if (/\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(raw)) return `${iconRoot}${raw}`;
   return `${iconRoot}${raw}.png`;
 }
 
@@ -508,9 +515,7 @@ function openDrawer(g){
     node.appendChild(label);
 
     if (!item.url){
-      node.addEventListener('click', () => {
-        $('songInfo').textContent = `已选择：${g.name} · ${item.name}（未配置链接）`;
-      });
+      node.addEventListener('click', () => { /* 未配置链接时不改动歌词区域 */ });
     }
     target.appendChild(node);
   });
@@ -574,6 +579,7 @@ for (let i = 0; i < 32; i++){
 let audioEl = null;
 let currentTrackIdx = -1;
 let parsedLyrics = [];
+let playRequestId = 0;
 
 function parseLrcText(raw){
   if (!raw) return [];
@@ -584,13 +590,9 @@ function parseLrcText(raw){
     const matches = [...line.matchAll(timeReg)];
     const text = line.replace(timeReg, '').trim();
     if (!text) continue;
-    if (matches.length === 0){
-      result.push({ time: null, text });
-    } else {
-      for (const m of matches){
-        const sec = parseInt(m[1], 10) * 60 + parseFloat(m[2]);
-        result.push({ time: sec, text });
-      }
+    if (matches.length === 0) result.push({ time: null, text });
+    else for (const m of matches){
+      result.push({ time: parseInt(m[1], 10) * 60 + parseFloat(m[2]), text });
     }
   }
   result.sort((a, b) => (a.time ?? -1) - (b.time ?? -1));
@@ -600,98 +602,83 @@ function parseLrcText(raw){
 async function fetchLrc(url){
   if (!url) return [];
   try {
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url, {}, 5000);
     if (!res.ok) return [];
-    const txt = await res.text();
-    return parseLrcText(txt);
-  } catch (e){
-    return [];
-  }
+    return parseLrcText(await res.text());
+  } catch (e){ return []; }
 }
 
 function syncLyricByTime(currentTime){
-  if (!parsedLyrics.length) return;
+  if (!parsedLyrics.length) { $('songInfo').textContent = ''; return; }
   const timed = parsedLyrics.filter(item => typeof item.time === 'number');
-  if (!timed.length){
-    $('songInfo').textContent = parsedLyrics[0].text;
-    return;
-  }
+  if (!timed.length){ $('songInfo').textContent = parsedLyrics[0]?.text || ''; return; }
   let active = timed[0];
   for (const item of timed){
     if (currentTime >= item.time) active = item;
     else break;
   }
-  $('songInfo').textContent = active.text;
+  $('songInfo').textContent = active.text || '';
 }
 
 function stopCurrentAudio(){
   if (audioEl){
-    try { audioEl.pause(); } catch(e){}
-    audioEl.src = '';
+    const oldAudio = audioEl;
     audioEl = null;
+    try { oldAudio.pause(); oldAudio.removeAttribute('src'); oldAudio.load(); } catch(e){}
   }
   player.classList.remove('playing');
   playBtn.textContent = '▶';
 }
 
 async function playTrackAt(idx){
-  if (!Array.isArray(music) || music.length === 0){
-    $('songTitle').textContent = '未配置 music 列表';
-    $('songInfo').textContent = '请在脚本 music / lrc 数组中填入音频与歌词链接';
-    return;
-  }
+  if (!Array.isArray(music) || music.length === 0) return;
+  const requestId = ++playRequestId;
   currentTrackIdx = ((idx % music.length) + music.length) % music.length;
-   const track = music[currentTrackIdx] || {};
-   const src = (track.url || '').trim();
-   const lrcUrl = (Array.isArray(lrc) ? (lrc[currentTrackIdx] || '') : '').trim();
-
-  if (!src){
-    $('songTitle').textContent = `第 ${currentTrackIdx + 1} 首（空链接）`;
-    $('songInfo').textContent = '当前歌单条目为空';
-    return;
-  }
+  const track = music[currentTrackIdx] || {};
+  const src = (track.url || '').trim();
+  const lrcUrl = (Array.isArray(lrc) ? (lrc[currentTrackIdx] || '') : '').trim();
+  if (!src){ $('songTitle').textContent = track.name || ''; $('songInfo').textContent = ''; return; }
 
   stopCurrentAudio();
-  const fallbackName = track.name ||
-    decodeURIComponent(src.split('?')[0].split('#')[0].split('/').pop() || `曲目 ${currentTrackIdx + 1}`);
-  $('songTitle').textContent = fallbackName;
-  $('songInfo').textContent = '加载中...';
+  parsedLyrics = [];
+  $('songTitle').textContent = track.name || '';
+  $('songInfo').textContent = '';
 
-  parsedLyrics = await fetchLrc(lrcUrl);
-  if (parsedLyrics.length > 0){
-    $('songInfo').textContent = parsedLyrics[0].text;
-  } else {
-    $('songInfo').textContent = '暂无可用歌词';
-  }
-
-  audioEl = new Audio(src);
-  audioEl.preload = 'metadata';
-  audioEl.addEventListener('timeupdate', () => {
-    if (audioEl) syncLyricByTime(audioEl.currentTime);
+  const lyricPromise = fetchLrc(lrcUrl);
+  const audio = new Audio(src);
+  audio.preload = 'auto';
+  audioEl = audio;
+  audio.addEventListener('timeupdate', () => {
+    if (audioEl === audio) syncLyricByTime(audio.currentTime);
   });
-  audioEl.addEventListener('play', () => {
-    player.classList.add('playing');
-    playBtn.textContent = '❚❚';
+  audio.addEventListener('play', () => {
+    if (audioEl !== audio) return;
+    player.classList.add('playing'); playBtn.textContent = '❚❚';
   });
-  audioEl.addEventListener('pause', () => {
-    player.classList.remove('playing');
-    playBtn.textContent = '▶';
+  audio.addEventListener('pause', () => {
+    if (audioEl !== audio) return;
+    player.classList.remove('playing'); playBtn.textContent = '▶';
   });
-  audioEl.addEventListener('ended', () => {
-    player.classList.remove('playing');
-    playBtn.textContent = '▶';
+  audio.addEventListener('ended', () => {
+    if (audioEl !== audio) return;
+    player.classList.remove('playing'); playBtn.textContent = '▶';
     if (music.length > 1) playTrackAt(currentTrackIdx + 1);
   });
-  audioEl.addEventListener('error', () => {
-    player.classList.remove('playing');
-    playBtn.textContent = '▶';
-    $('songInfo').textContent = '音频加载失败，请检查链接或跨域设置';
+  audio.addEventListener('error', () => {
+    if (audioEl !== audio) return;
+    player.classList.remove('playing'); playBtn.textContent = '▶';
+    // 歌词栏严格只显示歌词，不显示错误提示
   });
 
+  const lyricResult = await lyricPromise;
+  if (requestId !== playRequestId || audioEl !== audio) return;
+  parsedLyrics = lyricResult;
+  if (parsedLyrics.length) syncLyricByTime(audio.currentTime);
   try {
-    await audioEl.play();
+    await audio.play();
   } catch (e){
-    $('songInfo').textContent = parsedLyrics[0]?.text || '点击播放按钮开始播放';
+    // 浏览器可能禁止无交互自动播放；不在歌词栏显示提示。
+    if (audioEl === audio){ player.classList.remove('playing'); playBtn.textContent = '▶'; }
   }
 }
 
@@ -706,6 +693,9 @@ playBtn.addEventListener('click', () => {
   }
   playTrackAt(currentTrackIdx >= 0 ? currentTrackIdx : 0);
 });
+
+// 进入网页后尝试自动播放；若浏览器策略禁止有声自动播放，用户需点击播放键。
+window.addEventListener('load', () => { playTrackAt(0); }, { once: true });
 </script>
 
 </body></html>
