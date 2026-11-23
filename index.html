@@ -581,21 +581,44 @@ let currentTrackIdx = -1;
 let parsedLyrics = [];
 let playRequestId = 0;
 
+/* 支持：[mm:ss] [mm:ss.xx] [mm:ss.xxx] [mm:ss:xx] [mm:ss:xxx] [hh:mm:ss.xxx] */
+function lrcTimeToSeconds(minStr, secStr, fracStr){
+  const min = parseInt(minStr, 10) || 0;
+  const sec = parseInt(secStr, 10) || 0;
+  let ms = 0;
+  if (fracStr != null){
+    const f = String(fracStr);
+    if (f.length === 1) ms = parseInt(f, 10) * 100;
+    else if (f.length === 2) ms = parseInt(f, 10) * 10;
+    else ms = parseInt(f, 10);
+  }
+  return min * 60 + sec + ms / 1000;
+}
+
 function parseLrcText(raw){
   if (!raw) return [];
-  const lines = raw.split(/\r?\n/);
   const result = [];
-  const timeReg = /\[(\d{2,}):(\d{2}(?:\.\d{1,3})?)\]/g;
-  for (const line of lines){
+  const timeReg = /\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
+  const metaReg = /^\s*\[(ti|ar|al|au|by|offset|re|ve|length|kana|hash)\s*:/i;
+
+  for (const line of raw.split(/\r?\n/)){
+    if (metaReg.test(line)) continue;
+
     const matches = [...line.matchAll(timeReg)];
+    // 去掉所有时间轴标签，得到纯歌词文本
     const text = line.replace(timeReg, '').trim();
     if (!text) continue;
-    if (matches.length === 0) result.push({ time: null, text });
-    else for (const m of matches){
-      result.push({ time: parseInt(m[1], 10) * 60 + parseFloat(m[2]), text });
+
+    if (matches.length === 0){
+      result.push({ time: null, text });
+      continue;
+    }
+    for (const m of matches){
+      result.push({ time: lrcTimeToSeconds(m[1], m[2], m[3]), text });
     }
   }
-  result.sort((a, b) => (a.time ?? -1) - (b.time ?? -1));
+
+  result.sort((a, b) => (a.time ?? Infinity) - (b.time ?? Infinity));
   return result;
 }
 
@@ -609,15 +632,21 @@ async function fetchLrc(url){
 }
 
 function syncLyricByTime(currentTime){
-  if (!parsedLyrics.length) { $('songInfo').textContent = ''; return; }
+  const info = $('songInfo');
+  if (!parsedLyrics.length) { info.textContent = ''; return; }
+
   const timed = parsedLyrics.filter(item => typeof item.time === 'number');
-  if (!timed.length){ $('songInfo').textContent = parsedLyrics[0]?.text || ''; return; }
-  let active = timed[0];
+  if (!timed.length){
+    info.textContent = parsedLyrics[0]?.text || '';
+    return;
+  }
+
+  let active = null;
   for (const item of timed){
-    if (currentTime >= item.time) active = item;
+    if (currentTime + 0.12 >= item.time) active = item;  // 容差：避免临界跳字
     else break;
   }
-  $('songInfo').textContent = active.text || '';
+  info.textContent = (active || timed[0]).text || '';
 }
 
 function stopCurrentAudio(){
